@@ -23,12 +23,6 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e5e7eb; }
             th { background-color: #f9fafb; font-weight: 600; }
-            .category-work { background-color: #dbeafe; }
-            .category-personal { background-color: #dcfce7; }
-            .category-study { background-color: #f3e8ff; }
-            .category-break { background-color: #fed7aa; }
-            .category-meeting { background-color: #fecaca; }
-            .category-exercise { background-color: #ccfbf1; }
           </style>
         </head>
         <body>
@@ -39,16 +33,14 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
                 <th>Start Time</th>
                 <th>End Time</th>
                 <th>Task Description</th>
-                <th>Category</th>
               </tr>
             </thead>
             <tbody>
               ${tasks.map(task => `
-                <tr class="category-${task.category}">
+                <tr>
                   <td>${task.startTime}</td>
                   <td>${task.endTime}</td>
                   <td>${task.description}</td>
-                  <td>${task.category}</td>
                 </tr>
               `).join('')}
             </tbody>
@@ -69,11 +61,11 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Start Time', 'End Time', 'Task Description', 'Category'];
+    const headers = ['Start Time', 'End Time', 'Task Description'];
     const csvContent = [
       headers.join(','),
       ...tasks.map(task => 
-        [task.startTime, task.endTime, `"${task.description}"`, task.category].join(',')
+        [task.startTime, task.endTime, `"${task.description}"`].join(',')
       )
     ].join('\n');
 
