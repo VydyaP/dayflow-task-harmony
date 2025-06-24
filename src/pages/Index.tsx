@@ -12,10 +12,19 @@ const Index = () => {
 
   const handleDateSelect = (date: Date | undefined) => {
     if (date) {
+      console.log('Date selected:', date);
       setSelectedDate(date);
       const dateStr = format(date, 'yyyy-MM-dd');
+      console.log('Navigating to:', `/planner/${dateStr}`);
       navigate(`/planner/${dateStr}`);
     }
+  };
+
+  const handlePlanToday = () => {
+    const today = new Date();
+    const dateStr = format(today, 'yyyy-MM-dd');
+    console.log('Planning today:', dateStr);
+    navigate(`/planner/${dateStr}`);
   };
 
   return (
@@ -30,7 +39,7 @@ const Index = () => {
         {/* Action Buttons */}
         <div className="flex justify-center gap-3 mb-8">
           <Button
-            onClick={() => selectedDate && handleDateSelect(selectedDate)}
+            onClick={handlePlanToday}
             className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-2xl shadow-md hover:shadow-lg transition-all duration-200"
           >
             <PlusCircle className="w-5 h-5 mr-2" />
@@ -73,7 +82,7 @@ const Index = () => {
               head_cell: "text-slate-500 rounded-md w-9 font-normal text-sm",
               row: "flex w-full mt-2",
               cell: "text-center text-sm p-0 relative [&:has([aria-selected])]:bg-blue-100 first:[&:has([aria-selected])]:rounded-l-2xl last:[&:has([aria-selected])]:rounded-r-2xl focus-within:relative focus-within:z-20 rounded-lg",
-              day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-lg transition-colors",
+              day: "h-9 w-9 p-0 font-normal aria-selected:opacity-100 hover:bg-slate-100 rounded-lg transition-colors cursor-pointer",
               day_selected: "bg-blue-500 text-white hover:bg-blue-600 focus:bg-blue-600",
               day_today: "bg-slate-200 text-slate-900 font-semibold",
               day_outside: "text-slate-400 opacity-50",

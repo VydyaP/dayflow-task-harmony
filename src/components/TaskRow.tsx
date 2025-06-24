@@ -1,6 +1,5 @@
 
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Trash2, Clock } from 'lucide-react';
 import { Task } from '@/pages/Planner';
@@ -11,18 +10,17 @@ interface TaskRowProps {
   task: Task;
   onUpdate: (id: string, field: keyof Task, value: string) => void;
   onDelete: (id: string) => void;
-  categoryColors: Record<string, string>;
 }
 
-export const TaskRow = ({ task, onUpdate, onDelete, categoryColors }: TaskRowProps) => {
+export const TaskRow = ({ task, onUpdate, onDelete }: TaskRowProps) => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
 
   return (
-    <div className={`px-6 py-4 hover:bg-slate-50 transition-colors border-l-4 ${categoryColors[task.category]?.replace('bg-', 'border-').replace('-100', '-300') || 'border-gray-300'}`}>
+    <div className="px-6 py-4 hover:bg-slate-50 transition-colors">
       <div className="grid grid-cols-12 gap-4 items-center">
         {/* Start Time */}
-        <div className="col-span-2">
+        <div className="col-span-3">
           <div className="relative">
             <Input
               type="time"
@@ -48,7 +46,7 @@ export const TaskRow = ({ task, onUpdate, onDelete, categoryColors }: TaskRowPro
         </div>
 
         {/* End Time */}
-        <div className="col-span-2">
+        <div className="col-span-3">
           <div className="relative">
             <Input
               type="time"
@@ -74,7 +72,7 @@ export const TaskRow = ({ task, onUpdate, onDelete, categoryColors }: TaskRowPro
         </div>
 
         {/* Task Description */}
-        <div className="col-span-4">
+        <div className="col-span-5">
           <Input
             placeholder="Enter task description..."
             value={task.description}
@@ -83,28 +81,8 @@ export const TaskRow = ({ task, onUpdate, onDelete, categoryColors }: TaskRowPro
           />
         </div>
 
-        {/* Category */}
-        <div className="col-span-2">
-          <Select
-            value={task.category}
-            onValueChange={(value) => onUpdate(task.id, 'category', value)}
-          >
-            <SelectTrigger className="rounded-xl shadow-sm border-slate-200 focus:border-blue-400 focus:ring-blue-400">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent className="rounded-xl">
-              <SelectItem value="work">🏢 Work</SelectItem>
-              <SelectItem value="personal">🏠 Personal</SelectItem>
-              <SelectItem value="study">📚 Study</SelectItem>
-              <SelectItem value="break">☕ Break</SelectItem>
-              <SelectItem value="meeting">🤝 Meeting</SelectItem>
-              <SelectItem value="exercise">💪 Exercise</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Actions */}
-        <div className="col-span-2">
+        <div className="col-span-1">
           <Button
             onClick={() => onDelete(task.id)}
             variant="ghost"

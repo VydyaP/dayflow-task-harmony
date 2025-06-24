@@ -3,9 +3,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays, parseISO } from 'date-fns';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, Plus, Download, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { ArrowLeft, Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { TaskRow } from '@/components/TaskRow';
 import { DateScrollBar } from '@/components/DateScrollBar';
 import { ExportButton } from '@/components/ExportButton';
@@ -15,17 +13,7 @@ export interface Task {
   startTime: string;
   endTime: string;
   description: string;
-  category: 'work' | 'personal' | 'study' | 'break' | 'meeting' | 'exercise';
 }
-
-const categoryColors = {
-  work: 'bg-blue-100 border-blue-200 text-blue-800',
-  personal: 'bg-green-100 border-green-200 text-green-800',
-  study: 'bg-purple-100 border-purple-200 text-purple-800',
-  break: 'bg-orange-100 border-orange-200 text-orange-800',
-  meeting: 'bg-red-100 border-red-200 text-red-800',
-  exercise: 'bg-teal-100 border-teal-200 text-teal-800',
-};
 
 const Planner = () => {
   const { date } = useParams();
@@ -37,7 +25,12 @@ const Planner = () => {
 
   useEffect(() => {
     if (date) {
-      setCurrentDate(parseISO(date));
+      try {
+        setCurrentDate(parseISO(date));
+      } catch (error) {
+        console.error('Invalid date format:', date);
+        setCurrentDate(new Date());
+      }
     }
   }, [date]);
 
@@ -47,19 +40,21 @@ const Planner = () => {
       startTime: '09:00',
       endTime: '10:00',
       description: '',
-      category: 'work',
     };
     setTasks([...tasks, newTask]);
+    console.log('Task added:', newTask);
   };
 
   const updateTask = (id: string, field: keyof Task, value: string) => {
     setTasks(tasks.map(task => 
       task.id === id ? { ...task, [field]: value } : task
     ));
+    console.log('Task updated:', id, field, value);
   };
 
   const deleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
+    console.log('Task deleted:', id);
   };
 
   const navigateDate = (direction: 'prev' | 'next') => {
@@ -122,16 +117,15 @@ const Planner = () => {
           onDateSelect={handleDateSelect}
         />
 
-        {/* Task Table */}
+        {/* Task Table - 3 Columns as requested */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
           <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
             <div className="grid grid-cols-12 gap-4 items-center font-semibold text-slate-700">
-              <div className="col-span-2">Start Time</div>
-              <div className="col-span-2">End Time</div>
-              <div className="col-span-4">Task Description</div>
-              <div className="col-span-2">Category</div>
-              <div className="col-span-2">Actions</div>
+              <div className="col-span-3">Start Time</div>
+              <div className="col-span-3">End Time</div>
+              <div className="col-span-5">Task Description</div>
+              <div className="col-span-1">Actions</div>
             </div>
           </div>
 
@@ -143,7 +137,6 @@ const Planner = () => {
                 task={task}
                 onUpdate={updateTask}
                 onDelete={deleteTask}
-                categoryColors={categoryColors}
               />
             ))}
           </div>
