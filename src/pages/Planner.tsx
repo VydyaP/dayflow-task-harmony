@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { format, addDays, subDays, parseISO } from 'date-fns';
@@ -135,7 +134,7 @@ const Planner = () => {
           onDateSelect={handleDateSelect}
         />
 
-        {/* Task Table - 4 Columns including Duration */}
+        {/* Task Table - 4 Columns without Progress */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
           <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">

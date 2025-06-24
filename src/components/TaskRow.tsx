@@ -1,7 +1,6 @@
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Slider } from '@/components/ui/slider';
 import { Trash2, Clock } from 'lucide-react';
 import { Task } from '@/pages/Planner';
 import { TimePickerDialog } from '@/components/TimePickerDialog';
@@ -17,7 +16,6 @@ interface TaskRowProps {
 export const TaskRow = ({ task, duration, onUpdate, onDelete }: TaskRowProps) => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
-  const [progress, setProgress] = useState([0]);
 
   return (
     <div className="px-6 py-4 hover:bg-slate-50 transition-colors">
@@ -74,17 +72,9 @@ export const TaskRow = ({ task, duration, onUpdate, onDelete }: TaskRowProps) =>
           />
         </div>
 
-        {/* Duration with Progress Slider */}
+        {/* Duration */}
         <div className="col-span-2">
-          <div className="text-sm font-medium text-slate-700 mb-2">{duration}</div>
-          <Slider
-            value={progress}
-            onValueChange={setProgress}
-            max={100}
-            step={1}
-            className="w-full"
-          />
-          <div className="text-xs text-slate-500 mt-1">{progress[0]}% complete</div>
+          <div className="text-sm font-medium text-slate-700">{duration}</div>
         </div>
 
         {/* Task Description */}
