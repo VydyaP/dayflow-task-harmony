@@ -11,9 +11,18 @@ interface TimePickerDialogProps {
 }
 
 export const TimePickerDialog = ({ isOpen, onClose, value, onSelect }: TimePickerDialogProps) => {
-  const [hours, setHours] = useState(parseInt(value.split(':')[0]) || 12);
-  const [minutes, setMinutes] = useState(parseInt(value.split(':')[1]) || 0);
-  const [isPM, setIsPM] = useState(hours >= 12);
+  const [hours, setHours] = useState(() => {
+    const [h] = value.split(':').map(Number);
+    return h > 12 ? h - 12 : h === 0 ? 12 : h;
+  });
+  const [minutes, setMinutes] = useState(() => {
+    const [, m] = value.split(':').map(Number);
+    return m || 0;
+  });
+  const [isPM, setIsPM] = useState(() => {
+    const [h] = value.split(':').map(Number);
+    return h >= 12;
+  });
   
   const clockRef = useRef<SVGSVGElement>(null);
   const [isDragging, setIsDragging] = useState<'hours' | 'minutes' | null>(null);
@@ -52,13 +61,38 @@ export const TimePickerDialog = ({ isOpen, onClose, value, onSelect }: TimePicke
     setIsDragging(null);
   };
 
+  const handleTouchMove = (e: TouchEvent) => {
+    if (!isDragging || !e.touches[0]) return;
+    e.preventDefault();
+    
+    const touch = e.touches[0];
+    const angle = getAngle(touch.clientX, touch.clientY);
+    const normalizedAngle = ((angle * 180 / Math.PI + 90) % 360 + 360) % 360;
+    
+    if (isDragging === 'hours') {
+      const hour = Math.round(normalizedAngle / 30) % 12;
+      setHours(hour === 0 ? 12 : hour);
+    } else if (isDragging === 'minutes') {
+      const minute = Math.round(normalizedAngle / 6) % 60;
+      setMinutes(minute);
+    }
+  };
+
+  const handleTouchEnd = () => {
+    setIsDragging(null);
+  };
+
   useEffect(() => {
     if (isDragging) {
       document.addEventListener('mousemove', handleMouseMove);
       document.addEventListener('mouseup', handleMouseUp);
+      document.addEventListener('touchmove', handleTouchMove, { passive: false });
+      document.addEventListener('touchend', handleTouchEnd);
       return () => {
         document.removeEventListener('mousemove', handleMouseMove);
         document.removeEventListener('mouseup', handleMouseUp);
+        document.removeEventListener('touchmove', handleTouchMove);
+        document.removeEventListener('touchend', handleTouchEnd);
       };
     }
   }, [isDragging]);
@@ -86,7 +120,7 @@ export const TimePickerDialog = ({ isOpen, onClose, value, onSelect }: TimePicke
               width="240"
               height="240"
               viewBox="0 0 240 240"
-              className="border-2 border-slate-200 rounded-full bg-white shadow-lg"
+              className="border-2 border-slate-200 rounded-full bg-white shadow-lg select-none"
             >
               {/* Clock face */}
               <circle cx="120" cy="120" r="110" fill="white" stroke="#e2e8f0" strokeWidth="2" />
@@ -124,7 +158,7 @@ export const TimePickerDialog = ({ isOpen, onClose, value, onSelect }: TimePicke
                     y={y}
                     textAnchor="middle"
                     dominantBaseline="middle"
-                    className="text-sm font-semibold fill-slate-700"
+                    className="text-sm font-semibold fill-slate-700 select-none"
                   >
                     {hour}
                   </text>
@@ -132,30 +166,48 @@ export const TimePickerDialog = ({ isOpen, onClose, value, onSelect }: TimePicke
               })}
 
               {/* Hour hand */}
-              <line
-                x1="120"
-                y1="120"
-                x2={120 + 50 * Math.cos(hourAngle)}
-                y2={120 + 50 * Math.sin(hourAngle)}
-                stroke="#3b82f6"
-                strokeWidth="4"
-                strokeLinecap="round"
-                className="cursor-pointer"
-                onMouseDown={() => setIsDragging('hours')}
-              />
+              <g>
+                <line
+                  x1="120"
+                  y1="120"
+                  x2={120 + 50 * Math.cos(hourAngle)}
+                  y2={120 + 50 * Math.sin(hourAngle)}
+                  stroke="#3b82f6"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                />
+                <circle
+                  cx={120 + 50 * Math.cos(hourAngle)}
+                  cy={120 + 50 * Math.sin(hourAngle)}
+                  r="8"
+                  fill="#3b82f6"
+                  className="cursor-pointer"
+                  onMouseDown={() => setIsDragging('hours')}
+                  onTouchStart={() => setIsDragging('hours')}
+                />
+              </g>
 
               {/* Minute hand */}
-              <line
-                x1="120"
-                y1="120"
-                x2={120 + 80 * Math.cos(minuteAngle)}
-                y2={120 + 80 * Math.sin(minuteAngle)}
-                stroke="#ef4444"
-                strokeWidth="2"
-                strokeLinecap="round"
-                className="cursor-pointer"
-                onMouseDown={() => setIsDragging('minutes')}
-              />
+              <g>
+                <line
+                  x1="120"
+                  y1="120"
+                  x2={120 + 80 * Math.cos(minuteAngle)}
+                  y2={120 + 80 * Math.sin(minuteAngle)}
+                  stroke="#ef4444"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                />
+                <circle
+                  cx={120 + 80 * Math.cos(minuteAngle)}
+                  cy={120 + 80 * Math.sin(minuteAngle)}
+                  r="6"
+                  fill="#ef4444"
+                  className="cursor-pointer"
+                  onMouseDown={() => setIsDragging('minutes')}
+                  onTouchStart={() => setIsDragging('minutes')}
+                />
+              </g>
 
               {/* Center dot */}
               <circle cx="120" cy="120" r="6" fill="#1f2937" />

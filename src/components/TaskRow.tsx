@@ -1,6 +1,7 @@
 
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Slider } from '@/components/ui/slider';
 import { Trash2, Clock } from 'lucide-react';
 import { Task } from '@/pages/Planner';
 import { TimePickerDialog } from '@/components/TimePickerDialog';
@@ -8,13 +9,15 @@ import { useState } from 'react';
 
 interface TaskRowProps {
   task: Task;
+  duration: string;
   onUpdate: (id: string, field: keyof Task, value: string) => void;
   onDelete: (id: string) => void;
 }
 
-export const TaskRow = ({ task, onUpdate, onDelete }: TaskRowProps) => {
+export const TaskRow = ({ task, duration, onUpdate, onDelete }: TaskRowProps) => {
   const [showStartTimePicker, setShowStartTimePicker] = useState(false);
   const [showEndTimePicker, setShowEndTimePicker] = useState(false);
+  const [progress, setProgress] = useState([0]);
 
   return (
     <div className="px-6 py-4 hover:bg-slate-50 transition-colors">
@@ -71,8 +74,21 @@ export const TaskRow = ({ task, onUpdate, onDelete }: TaskRowProps) => {
           />
         </div>
 
+        {/* Duration with Progress Slider */}
+        <div className="col-span-2">
+          <div className="text-sm font-medium text-slate-700 mb-2">{duration}</div>
+          <Slider
+            value={progress}
+            onValueChange={setProgress}
+            max={100}
+            step={1}
+            className="w-full"
+          />
+          <div className="text-xs text-slate-500 mt-1">{progress[0]}% complete</div>
+        </div>
+
         {/* Task Description */}
-        <div className="col-span-5">
+        <div className="col-span-3">
           <Input
             placeholder="Enter task description..."
             value={task.description}

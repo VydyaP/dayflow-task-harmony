@@ -11,8 +11,25 @@ interface ExportButtonProps {
 }
 
 export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
+  const calculateDuration = (startTime: string, endTime: string): string => {
+    if (!startTime || !endTime) return '0h 0m';
+    
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    
+    let diffMinutes = endMinutes - startMinutes;
+    if (diffMinutes < 0) diffMinutes += 24 * 60;
+    
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    
+    return `${hours}h ${minutes}m`;
+  };
+
   const exportToPDF = () => {
-    // Create a simple HTML structure for PDF export
     const content = `
       <html>
         <head>
@@ -32,6 +49,7 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
               <tr>
                 <th>Start Time</th>
                 <th>End Time</th>
+                <th>Duration</th>
                 <th>Task Description</th>
               </tr>
             </thead>
@@ -40,6 +58,7 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
                 <tr>
                   <td>${task.startTime}</td>
                   <td>${task.endTime}</td>
+                  <td>${calculateDuration(task.startTime, task.endTime)}</td>
                   <td>${task.description}</td>
                 </tr>
               `).join('')}
@@ -61,11 +80,11 @@ export const ExportButton = ({ tasks, date }: ExportButtonProps) => {
   };
 
   const exportToCSV = () => {
-    const headers = ['Start Time', 'End Time', 'Task Description'];
+    const headers = ['Start Time', 'End Time', 'Duration', 'Task Description'];
     const csvContent = [
       headers.join(','),
       ...tasks.map(task => 
-        [task.startTime, task.endTime, `"${task.description}"`].join(',')
+        [task.startTime, task.endTime, calculateDuration(task.startTime, task.endTime), `"${task.description}"`].join(',')
       )
     ].join('\n');
 

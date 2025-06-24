@@ -34,6 +34,24 @@ const Planner = () => {
     }
   }, [date]);
 
+  const calculateDuration = (startTime: string, endTime: string): string => {
+    if (!startTime || !endTime) return '0h 0m';
+    
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
+    
+    const startMinutes = startHour * 60 + startMin;
+    const endMinutes = endHour * 60 + endMin;
+    
+    let diffMinutes = endMinutes - startMinutes;
+    if (diffMinutes < 0) diffMinutes += 24 * 60; // Handle overnight tasks
+    
+    const hours = Math.floor(diffMinutes / 60);
+    const minutes = diffMinutes % 60;
+    
+    return `${hours}h ${minutes}m`;
+  };
+
   const addTask = () => {
     const newTask: Task = {
       id: Date.now().toString(),
@@ -117,14 +135,15 @@ const Planner = () => {
           onDateSelect={handleDateSelect}
         />
 
-        {/* Task Table - 3 Columns as requested */}
+        {/* Task Table - 4 Columns including Duration */}
         <div className="bg-white rounded-3xl shadow-xl overflow-hidden">
           {/* Table Header */}
           <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
             <div className="grid grid-cols-12 gap-4 items-center font-semibold text-slate-700">
               <div className="col-span-3">Start Time</div>
               <div className="col-span-3">End Time</div>
-              <div className="col-span-5">Task Description</div>
+              <div className="col-span-2">Duration</div>
+              <div className="col-span-3">Task Description</div>
               <div className="col-span-1">Actions</div>
             </div>
           </div>
@@ -135,6 +154,7 @@ const Planner = () => {
               <TaskRow
                 key={task.id}
                 task={task}
+                duration={calculateDuration(task.startTime, task.endTime)}
                 onUpdate={updateTask}
                 onDelete={deleteTask}
               />
